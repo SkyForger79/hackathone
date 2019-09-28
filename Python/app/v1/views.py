@@ -1,10 +1,10 @@
 from marshmallow import ValidationError
 from flask import Blueprint, request, jsonify, send_from_directory
 
-from Python.app.libs.file_lib.upload_file import allowed_file, upload_file
-from Python.app.libs.ml_lib.fatigue_checker import check_fatigue
+from app.libs.file_lib.upload_file import allowed_file, upload_file
+from app.libs.ml_lib.fatigue_checker import check_fatigue
 
-import Python.config as config
+import config as config
 
 blueprints_v1 = Blueprint(__name__, 'blueprints_v1', url_prefix='/v1')
 

@@ -4,7 +4,7 @@ import logging
 
 def get_file_name():
     file_name = datetime.now().strftime("%d.%m.%Y%Hh%Mm")
-    return 'logs/{}.log'.format(file_name)
+    return 'Python/logs/{}.log'.format(file_name)
 
 
 def get_format_file():

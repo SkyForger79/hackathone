@@ -1,5 +1,5 @@
 from marshmallow import ValidationError
-from Python.app.libs.ml_lib.model import ModelLoader
+from app.libs.ml_lib.model import ModelLoader
 from keras.preprocessing.image import img_to_array, load_img
 import numpy as np
 from PIL import Image
@@ -11,7 +11,7 @@ from PIL import Image
 from tensorflow import keras
 import tensorflow as tf
 
-eye_cascade = cv2.CascadeClassifier('./opencv_face.xml')
+eye_cascade = cv2.CascadeClassifier('/home/anton/VSCodeProjects/hackathone/Python/opencv_face.xml')
 
 
 def image_preprocessing(image):
