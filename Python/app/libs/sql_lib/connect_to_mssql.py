@@ -2,14 +2,15 @@ import pyodbc
 
 def get_connect_ms_sql(server_name = 'localhost, 1433',
                        driver = 'ODBC Driver 17 for SQL Server',
-                       db_name = 'master',
+                       db_name = 'hackaton',
                        user_name = 'sa',
                        passw = 'HackAss12'):
     params = (
         'Driver={};'
         'Server={};'
         'Database={};'
-        'MARS_Connection=yes;'
+        'MARS_Connection=no;'
+        'trusted_connection=no;'
     ).format(driver, server_name, db_name)
 
     if user_name is not None and passw is not None:
