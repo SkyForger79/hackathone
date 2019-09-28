@@ -1,7 +1,7 @@
 from marshmallow import ValidationError
 from flask import Blueprint, request, jsonify, send_from_directory, Response
 
-from app.libs.file_lib.upload_file import allowed_file, upload_file, check_eyes
+from app.libs.file_lib.upload_file import allowed_file, check_eyes
 from app.libs.ml_lib.fatigue_checker import check_fatigue
 import json
 
@@ -22,7 +22,7 @@ def ml():
         file = request.files['file']
         if file and allowed_file(file.filename):
             result = check_fatigue(file)
-            upload = upload_file(file)
+            upload = check_eyes(file)
             # answer = list()
             # answer.append(upload)
             # answer.append(result)
@@ -62,7 +62,7 @@ def up_file():
         file = request.files['file']
         if file and allowed_file(file.filename):
             result = check_fatigue(file)
-            upload = upload_file(file, result)
+            upload = check_eyes(file, result)
             resp = Response(json.dumps(upload))
             resp.headers['Access-Control-Allow-Origin'] = '*'
             resp.mimetype = 'application/json'
@@ -106,9 +106,9 @@ def validation_json(error: ValidationError):
 # region get set screen
 @blueprints_v1.route('/get_msg', methods=['GET'])
 def get_msg():
-    img = '2019.09.28-13.41.37.jpeg'
+    img = '2019.09.28-20.30.07.jpeg'
     req = list()
-    req.append({"head": "Вы устали!", "hody": "Рекомендуется устроить небольшой перерыв", "img": img, "id": 3, "level": "danger"})
+    req.append({"head": "Вы устали!", "body": "Рекомендуется устроить небольшой перерыв", "img": img, "id": 3, "level": "danger"})
     req = json.dumps(req)
     resp = Response(req)
     resp.headers['Access-Control-Allow-Origin'] = '*'

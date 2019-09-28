@@ -4,10 +4,13 @@ from keras.preprocessing.image import img_to_array, load_img
 import numpy as np
 from PIL import Image  
 import os
+from datetime import datetime
 from keras.models import load_model
 from keras import backend as cl
 import cv2
 from PIL import Image
+import config
+from time import sleep
 
 
 eye_cascade = cv2.CascadeClassifier('/home/pavel/PycharmProjects/hackathone/Python/app/libs/data/opencv_face.xml')
@@ -24,24 +27,17 @@ def detect_eyes(image):
 
     eyes = eye_cascade.detectMultiScale(gray_frame, 1.3, 5)
 
-    width, height = np.size(image, 1), np.size(image, 0)
-    left_eye = np.ones((34, 26, 3))
-    right_eye = np.ones((34, 26, 3))
+
     for (x, y, w, h) in eyes:
-        if y > height / 2:
-            pass
-        eyecenter = x + w / 2
-        if eyecenter < width * 0.5:
-            left_eye = image[y:y + h, x:x + w]
-        else:
-            right_eye = image[y:y + h, x:x + w]
-    for eye in [left_eye, right_eye]:
-        yield image_preprocessing(eye)
+
+        yield image_preprocessing(image[y:y + h, x:x + w])
 
 
 def check_fatigue(file):
-    file.save('test.jpeg')
-    img = cv2.imread('test.jpeg')
+    filename = datetime.now().strftime("%Y.%m.%d-%H.%M.%S")
+    file_path = os.path.join(config.UPLOAD_FOLDER, filename + '.jpeg')
+    file.save(file_path)
+    img = cv2.imread(file_path)
     arr_eye = np.array([i for i in detect_eyes(img)])
     # model = load_model('./app/libs/data/model7.h5')
     # model._make_predict_function()
