@@ -1,8 +1,10 @@
 from marshmallow import ValidationError
-from flask import Blueprint, request, jsonify, send_from_directory
+from flask import Blueprint, request, jsonify, send_from_directory, Response
 
-from app.libs.file_lib.upload_file import allowed_file, upload_file
+from app.libs.file_lib.upload_file import allowed_file, upload_file, check_eyes
 from app.libs.ml_lib.fatigue_checker import check_fatigue
+from app.libs import insert_signal
+import json
 from app.libs.insert_signal import insert_to_alert_history
 
 import config as config
@@ -20,8 +22,13 @@ def get_status():
 def ml():
     if request.method == 'POST':
         file = request.files['file']
-        result = check_fatigue(file)
-        return result
+        if file and allowed_file(file.filename):
+            result = check_fatigue(file)
+            upload = upload_file(file)
+            # answer = list()
+            # answer.append(upload)
+            # answer.append(result)
+            return result
     return '''
         <!doctype html>
         <title>Upload new File</title>
@@ -43,6 +50,10 @@ def set_stat(signal):
 # @blueprints_v1.route('/set_stat_test', methods=['GET', 'POST'])
 # def set_stat():
 #     requests.post(url=API_ENDPOINT, data=data)
+@blueprints_v1.route('/set_stat', methods=['GET', 'POST'])
+def set_stat():
+    if request.method == 'POST':
+        return jsonify(insert_signal(request.json, request.date))
 # endregion
 
 
@@ -52,8 +63,13 @@ def up_file():
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
-            return jsonify(upload_file(file))
-
+            upload_file(file)
+            result = check_fatigue(file)
+            upload = check_eyes(file, result)
+            resp = Response(json.dumps(upload))
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            resp.mimetype = 'application/json'
+            return resp
     return '''
                 <!doctype html>
                 <title>Upload new File</title>
@@ -76,10 +92,10 @@ def cach_signal():
     return jsonify(insert_to_alert_history(request.json))
     
 
-# # region tech
-# @blueprints_v1.errorhandler(ValidationError)
-# def validation_json(error: ValidationError):
-#     return jsonify({'error': error.args[0]}), 400
+# region tech
+@blueprints_v1.errorhandler(ValidationError)
+def validation_json(error: ValidationError):
+    return jsonify({'error': error.args[0]}), 400
 
 #
 # @blueprints_v1.errorhandler(Exception)
@@ -95,6 +111,11 @@ def cach_signal():
 def get_msg():
     img = '2019.09.28-13.41.37.jpeg'
     req = list()
-    req.append({"Head": "Вы устали!", "Body": "Рекомендуется устроить небольшой перерыв", "Img": img})
-    return jsonify(req)
+    req.append({"head": "Вы устали!", "hody": "Рекомендуется устроить небольшой перерыв", "img": img, "id": 3, "level": "danger"})
+    req = json.dumps(req)
+    resp = Response(req)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    resp.mimetype='application/json'
+    return resp
+    #return jsonify(req)
 # endregion
