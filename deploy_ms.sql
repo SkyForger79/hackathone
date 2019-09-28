@@ -12,13 +12,24 @@ insert into dbo.msg_list (msg_head, msg_body) values ('Оторвитесь от
 insert into dbo.msg_list (msg_head, msg_body) values ('Улучшите освещение', 'Рекомендуется включить дополнительный источник освещения');
 select * from dbo.msg_list
 
-create table hackaton.dbo.screen_history (
-    stime DATETIME NOT NULL DEFAULT GETDATE(), 
-    sname VARCHAR (50) NOT NULL);
+drop table hackaton.dbo.screen_history
+; 
 
+create table hackaton.dbo.screen_history (
+    stime datetime NOT NULL, 
+    sname VARCHAR (50) NOT NULL,
+    left_eye numeric(10,5),
+    right_eye numeric(10,5)
+);
+
+
+drop TABLE hackaton.dbo.alert_history
 create table hackaton.dbo.alert_history (
     atime DATETIME NOT NULL DEFAULT GETDATE(), 
-    aname VARCHAR (255) NOT NULL);
+    aname VARCHAR (255) NOT NULL,
+    val float NULL,
+    is_sent INT
+    );
 
 create table hackaton.dbo.alert_manager (
     msg_id INT PRIMARY KEY IDENTITY (1, 1),
@@ -31,3 +42,11 @@ ALTER TABLE dbo.alert_history
 ADD val float NULL;
 
 
+select * 
+from hackaton.dbo.screen_history 
+where 1 = 1
+    and stime >= dateadd(MINUTE, -1,  GETDATE())
+
+
+select * from 
+hackaton.dbo.alert_history

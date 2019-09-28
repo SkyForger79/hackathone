@@ -1,11 +1,15 @@
-from app.libs.sql_lib import connect_to_mssql
+from app.libs.sql_lib.connect_to_mssql import get_connect_ms_sql
 import json
+from datetime import datetime
 
-
-def insert_to_alert_history(record, dt):
-    print(record, dt)
+def insert_to_alert_history(**kwargs):    
+    with get_connect_ms_sql() as connect: 
+        cursor = connect.cursor()
+        for k, v in kwargs.items():
+            cursor.execute("""
+                insert into hackaton.dbo.alert_history 
+                (atime, aname, val)
+                values (?, ?, ?)
+            """, (datetime.now(), k, v))
+        cursor.commit()
     return {'status': 'ok'}
-    # with connect_to_mssql() as connect: 
-    #     cursor = connect.cursor()
-    #     cursor.execute("hackaton.dbo.alert_history values (?, ?, ?)", (json.dumps(record),))
-    #     cursor.commit()

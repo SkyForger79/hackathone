@@ -3,7 +3,8 @@ from flask import Blueprint, request, jsonify, send_from_directory
 
 from app.libs.file_lib.upload_file import allowed_file, upload_file
 from app.libs.ml_lib.fatigue_checker import check_fatigue
-from app.libs.insert_signal import insert_to_alert_history
+from app.libs.sql_lib.insert_signal import insert_to_alert_history
+from app.libs.sql_lib.get_signals import get_last_signals
 
 import config as config
 
@@ -35,10 +36,17 @@ def ml():
 
 
 # region arduino
-@blueprints_v1.route('/set_stat/<signal>', methods=['GET'])
-def set_stat(signal):
-    print(signal)
-    return jsonify(insert_to_alert_history(signal))
+@blueprints_v1.route('/set_stat', methods=['GET'])
+def set_stat():
+    return jsonify(
+        insert_to_alert_history(
+            light=request.args.get('Light'),
+            micro=request.args.get('microphoneValue'),
+            sonar=request.args.get('Sonar'),
+            humidity=request.args.get('Humidity'),
+            temperature=request.args.get('temperature')
+        )
+    )
 
 # @blueprints_v1.route('/set_stat_test', methods=['GET', 'POST'])
 # def set_stat():
@@ -71,10 +79,11 @@ def uploaded_file(filename):
                                filename)
 
 
-@blueprints_v1.route('/cach_signal')
-def cach_signal():
-    return jsonify(insert_to_alert_history(request.json))
-    
+@blueprints_v1.route('/get_current_signal')
+def get_current_signal():
+    return jsonify(get_last_signals())
+
+
 
 # # region tech
 # @blueprints_v1.errorhandler(ValidationError)
