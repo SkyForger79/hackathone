@@ -9,6 +9,6 @@ def allowed_file(filename):
 
 
 def upload_file(file):
-    filename = datetime.now().strftime("%Y.%m.%d-%H:%M:%S")
-    file.save(os.path.join(config.UPLOAD_FOLDER, filename))
+    filename = datetime.now().strftime("%Y.%m.%d-%H.%M.%S")
+    file.save(os.path.join(config.UPLOAD_FOLDER, filename+'.jpeg'))
     return {"status": "OK"}

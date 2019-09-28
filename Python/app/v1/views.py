@@ -85,9 +85,13 @@ def validation_json(error: ValidationError):
 # # endregion
 
 # region messager
+
+
+# region get set screen
 @blueprints_v1.route('/get_msg', methods=['GET'])
 def get_msg():
-    request = list()
-    request.append({"Head": "Head msg", "Body": "Body msg"})
-    return jsonify(request)
+    img = '2019.09.28-13.41.37.jpeg'
+    req = list()
+    req.append({"Head": "Вы устали!", "Body": "Рекомендуется устроить небольшой перерыв", "Img": img})
+    return jsonify(req)
 # endregion
