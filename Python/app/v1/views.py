@@ -3,9 +3,7 @@ from flask import Blueprint, request, jsonify, send_from_directory, Response
 
 from app.libs.file_lib.upload_file import allowed_file, upload_file, check_eyes
 from app.libs.ml_lib.fatigue_checker import check_fatigue
-from app.libs import insert_signal
 import json
-from app.libs.insert_signal import insert_to_alert_history
 
 import config as config
 
@@ -63,9 +61,8 @@ def up_file():
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
-            upload_file(file)
             result = check_fatigue(file)
-            upload = check_eyes(file, result)
+            upload = upload_file(file, result)
             resp = Response(json.dumps(upload))
             resp.headers['Access-Control-Allow-Origin'] = '*'
             resp.mimetype = 'application/json'
