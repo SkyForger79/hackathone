@@ -1,0 +1,51 @@
+.flat-btn {
+  border:none;
+  background:none;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  border-radius: 3px;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.flat-btn:hover {
+  box-shadow: 0 0 10px  white;
+}
+
+.size-modal-content {
+  padding: 10px;
+  font-style: 13px;
+}
+.v--modal-overlay[data-modal="size-modal"] {
+  background: rgba(0, 0, 0, 0.5);
+}
+.demo-modal-class {
+  border-radius: 5px;
+  background: #F7F7F7;
+  box-shadow: 5px 5px 30px 0px rgba(46,61,73, 0.6);
+}
+
+.picture-modal {
+  position: fixed;
+  background: gray;
+  border-radius: 3px;
+  box-shadow: 0 12px 20px -10px rgba(245, 90, 78, 0.28), 0 4px 20px 0px rgba(0, 0, 0, 0.12), 0 7px 8px -5px rgba(245, 90, 78, 0.2);
+  z-index: 9000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 25px;
+  min-width: 680px;
+  min-height: 520px;
+}
+
+.picture-modal > button {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  transform: translateX(-100%);
+  width: 25px;
+  height: 25px;
+}
