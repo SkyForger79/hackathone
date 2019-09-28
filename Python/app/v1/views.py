@@ -70,8 +70,12 @@ def up_file():
 def uploaded_file(filename):
     return send_from_directory(config.UPLOAD_FOLDER,
                                filename)
-# endregion
 
+
+@blueprints_v1.route('/cach_signal')
+def cach_signal():
+    return jsonify(insert_signal(request.json))
+    
 
 # region tech
 @blueprints_v1.errorhandler(ValidationError)
