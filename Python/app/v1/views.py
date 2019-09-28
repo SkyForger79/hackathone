@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify, send_from_directory
 
 from app.libs.file_lib.upload_file import allowed_file, upload_file
 from app.libs.ml_lib.fatigue_checker import check_fatigue
+from app.libs import insert_signal
 
 import config as config
 
@@ -37,9 +38,7 @@ def ml():
 @blueprints_v1.route('/set_stat', methods=['GET', 'POST'])
 def set_stat():
     if request.method == 'POST':
-        request_json = request.json
-        print(request_json)
-        return jsonify({"status": "OK"})
+        return jsonify(insert_signal(request.json, request.date))
 
 # @blueprints_v1.route('/set_stat_test', methods=['GET', 'POST'])
 # def set_stat():
