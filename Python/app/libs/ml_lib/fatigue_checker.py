@@ -5,9 +5,11 @@ import numpy as np
 from PIL import Image
 import os
 from keras.models import load_model
-
+from keras import backend as cl
 import cv2
 from PIL import Image
+from tensorflow import keras
+import tensorflow as tf
 
 eye_cascade = cv2.CascadeClassifier('./opencv_face.xml')
 
@@ -43,11 +45,13 @@ def check_fatigue(file):
     file.save('test.jpeg')
     img = cv2.imread('test.jpeg')
     arr_eye = np.array([i for i in detect_eyes(img)])
-
-    model = load_model('./app/libs/data/model7.h5')
-    model._make_predict_function()
+    # model = load_model('./app/libs/data/model7.h5')
+    # model._make_predict_function()
     predict = [float(i) for i in ModelLoader().predict(arr_eye)]
-    #predict = [float(i) for i in model.predict(arr_eye)]
+    # predict = [float(i) for i in model.predict(arr_eye)]
+    cl.clear_session()
     print('predict ' + str(predict))
     return {'predict ': list(predict)}
+
+
 
