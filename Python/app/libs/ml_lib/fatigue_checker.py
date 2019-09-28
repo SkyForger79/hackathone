@@ -10,7 +10,7 @@ import cv2
 from PIL import Image
 
 
-eye_cascade = cv2.CascadeClassifier('/home/anton/VSCodeProjects/hackathone/Python/opencv_face.xml')
+eye_cascade = cv2.CascadeClassifier('/home/pavel/PycharmProjects/hackathone/Python/app/libs/data/opencv_face.xml')
 
 
 def image_preprocessing(image):
@@ -40,7 +40,6 @@ def detect_eyes(image):
 
 
 def check_fatigue(file):
-    print(file)
     file.save('test.jpeg')
     img = cv2.imread('test.jpeg')
     arr_eye = np.array([i for i in detect_eyes(img)])
@@ -49,5 +48,4 @@ def check_fatigue(file):
     predict = [float(i) for i in ModelLoader().predict(arr_eye)]
     # predict = [float(i) for i in model.predict(arr_eye)]
     cl.clear_session()
-    print('predict ' + str(predict))
     return {'predict ': list(predict)}
