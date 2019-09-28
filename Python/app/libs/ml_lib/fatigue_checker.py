@@ -2,14 +2,13 @@ from marshmallow import ValidationError
 from app.libs.ml_lib.model import ModelLoader
 from keras.preprocessing.image import img_to_array, load_img
 import numpy as np
-from PIL import Image
+from PIL import Image  
 import os
 from keras.models import load_model
 from keras import backend as cl
 import cv2
 from PIL import Image
-from tensorflow import keras
-import tensorflow as tf
+
 
 eye_cascade = cv2.CascadeClassifier('/home/anton/VSCodeProjects/hackathone/Python/opencv_face.xml')
 
@@ -52,6 +51,3 @@ def check_fatigue(file):
     cl.clear_session()
     print('predict ' + str(predict))
     return {'predict ': list(predict)}
-
-
-
