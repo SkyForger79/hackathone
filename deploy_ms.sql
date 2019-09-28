@@ -29,3 +29,5 @@ create table hackaton.dbo.alert_manager (
 use hackaton;    	
 ALTER TABLE dbo.alert_history
 ADD val float NULL;
+
+
