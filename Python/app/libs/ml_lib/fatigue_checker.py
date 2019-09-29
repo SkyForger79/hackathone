@@ -24,12 +24,8 @@ def image_preprocessing(image):
 
 def detect_eyes(image):
     gray_frame = np.array(cv2.cvtColor(np.float32(image), cv2.COLOR_BGR2GRAY), dtype='uint8')
-
-    eyes = eye_cascade.detectMultiScale(gray_frame, 1.3, 5)
-
-
+    eyes = eye_cascade.detectMultiScale(gray_frame, 1.3, 50)
     for (x, y, w, h) in eyes:
-
         yield image_preprocessing(image[y:y + h, x:x + w])
 
 

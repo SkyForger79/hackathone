@@ -6,7 +6,10 @@ from app.libs.ml_lib.fatigue_checker import check_fatigue
 from app.libs.sql_lib.insert_signal import insert_to_alert_history
 from app.libs.sql_lib.get_signals import get_last_signals
 
-import config as config
+import Python.config as config
+import json
+import glob
+import os
 
 blueprints_v1 = Blueprint(__name__, 'blueprints_v1', url_prefix='/v1')
 
@@ -23,7 +26,7 @@ def ml():
         file = request.files['file']
         if file and allowed_file(file.filename):
             result = check_fatigue(file)
-            upload = check_eyes(file)
+            # upload = check_eyes(file)
             # answer = list()
             # answer.append(upload)
             # answer.append(result)
@@ -52,16 +55,6 @@ def set_stat():
             temperature=request.args.get('temperature')
         )
     )
-
-# @blueprints_v1.route('/set_stat_test', methods=['GET', 'POST'])
-# def set_stat():
-#     requests.post(url=API_ENDPOINT, data=data)
-@blueprints_v1.route('/set_stat', methods=['GET', 'POST'])
-def set_stat():
-    if request.method == 'POST':
-        return jsonify(insert_signal(request.json, request.date))
-# endregion
-
 
 # region get set screen
 @blueprints_v1.route('/upload_file', methods=['GET', 'POST'])
@@ -94,7 +87,21 @@ def uploaded_file(filename):
 
 @blueprints_v1.route('/get_current_signal')
 def get_current_signal():
-    return jsonify(get_last_signals())
+    res = get_last_signals()
+    return jsonify(res)
+
+
+@blueprints_v1.route('/get_all_signal')
+def get_today_signal():
+    res = get_all_signals()
+    return jsonify(res)
+
+#
+# @blueprints_v1.route('/get_all_signal')
+# def get_today_signal():
+#     res = get_all_signals()
+#     return jsonify(res)
+
 
 
 
@@ -115,13 +122,23 @@ def validation_json(error: ValidationError):
 # region get set screen
 @blueprints_v1.route('/get_msg', methods=['GET'])
 def get_msg():
-    img = '2019.09.28-20.30.07.jpeg'
+    data = get_last_signals()
+    print(data)
     req = list()
-    req.append({"head": "Вы устали!", "body": "Рекомендуется устроить небольшой перерыв", "img": img, "id": 3, "level": "danger"})
+    for i in data:
+        list_of_files = glob.glob(config.UPLOAD_FOLDER+'/*')
+        img = max(list_of_files, key=os.path.getctime)
+        img = img.split('/')[-1]
+        req.append({"head": "Вы устали!", "body": "Рекомендуется устроить небольшой перерыв", "img": img, "id": 1, "level": "danger"})
+        insert_alert_to_database('Вы устали', 'Рекомендуется устроить небольшой перерыв', img)
     req = json.dumps(req)
     resp = Response(req)
     resp.headers['Access-Control-Allow-Origin'] = '*'
     resp.mimetype='application/json'
+    resp.content_encoding='UTF-8'
     return resp
+
     #return jsonify(req)
 # endregion
+
+
