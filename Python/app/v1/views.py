@@ -1,11 +1,13 @@
 from marshmallow import ValidationError
 from flask import Blueprint, request, jsonify, send_from_directory, Response
 
-from app.libs.file_lib.upload_file import allowed_file, check_eyes
+from app.libs.file_lib.upload_file import allowed_file, save_data
 from app.libs.ml_lib.fatigue_checker import check_fatigue
 from app.libs.sql_lib.insert_signal import insert_to_alert_history
 from app.libs.sql_lib.get_signals import get_last_signals
 
+import config as config
+import json
 import Python.config as config
 import json
 import glob
@@ -26,7 +28,7 @@ def ml():
         file = request.files['file']
         if file and allowed_file(file.filename):
             result = check_fatigue(file)
-            # upload = check_eyes(file)
+            upload = check_eyes(file)
             # answer = list()
             # answer.append(upload)
             # answer.append(result)
@@ -56,6 +58,16 @@ def set_stat():
         )
     )
 
+# @blueprints_v1.route('/set_stat_test', methods=['GET', 'POST'])
+# def set_stat():
+#     requests.post(url=API_ENDPOINT, data=data)
+@blueprints_v1.route('/set_stat', methods=['GET', 'POST'])
+def set_stat():
+    if request.method == 'POST':
+        return jsonify(insert_signal(request.json, request.date))
+# endregion
+
+
 # region get set screen
 @blueprints_v1.route('/upload_file', methods=['GET', 'POST'])
 def up_file():
@@ -63,8 +75,9 @@ def up_file():
         file = request.files['file']
         if file and allowed_file(file.filename):
             result = check_fatigue(file)
-            upload = check_eyes(file, result)
-            resp = Response(json.dumps(upload))
+            print(result)
+            save_data(result)
+            resp = Response(json.dumps(result))
             resp.headers['Access-Control-Allow-Origin'] = '*'
             resp.mimetype = 'application/json'
             return resp

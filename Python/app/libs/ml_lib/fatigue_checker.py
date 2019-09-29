@@ -11,22 +11,29 @@ import cv2
 from PIL import Image
 import config
 from time import sleep
+from keras import backend as K
 
 
+face_cascade = cv2.CascadeClassifier('/home/pavel/PycharmProjects/hackathone/Python/app/libs/data/opencv_face2.xml')
 eye_cascade = cv2.CascadeClassifier('/home/pavel/PycharmProjects/hackathone/Python/app/libs/data/opencv_face.xml')
 
 
 def image_preprocessing(image):
-    img_eye = Image.fromarray(image, 'RGB')
+    img_eye = Image.fromarray(image)
     img_eye = img_eye.resize((34, 26), Image.ANTIALIAS).convert('L')
     return np.expand_dims(np.array(img_eye), axis=2) / 255.
 
 
 def detect_eyes(image):
-    gray_frame = np.array(cv2.cvtColor(np.float32(image), cv2.COLOR_BGR2GRAY), dtype='uint8')
-    eyes = eye_cascade.detectMultiScale(gray_frame, 1.3, 50)
-    for (x, y, w, h) in eyes:
-        yield image_preprocessing(image[y:y + h, x:x + w])
+    gray_frame = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray_frame, 1.3, 5)
+    print(len(faces))
+    for (x, y, w, h) in faces:
+        roi_gray = gray_frame[y:y + h, x:x + w]
+        eyes = eye_cascade.detectMultiScale(roi_gray, 1.2, 7)
+        print(len(eyes))
+        for (ex, ey, ew, eh) in eyes:
+            yield image_preprocessing(roi_gray[ey:ey + eh, ex:ex + ew])
 
 
 def check_fatigue(file):
@@ -37,7 +44,10 @@ def check_fatigue(file):
     arr_eye = np.array([i for i in detect_eyes(img)])
     # model = load_model('./app/libs/data/model7.h5')
     # model._make_predict_function()
-    predict = [float(i) for i in ModelLoader().predict(arr_eye)]
-    # predict = [float(i) for i in model.predict(arr_eye)]
-    cl.clear_session()
-    return {'predict ': list(predict)}
+    if len(arr_eye) > 0:
+        K.clear_session()
+        predict = [float(i) for i in ModelLoader().predict(arr_eye)]
+        K.clear_session()
+        return {'predict ': list(predict)}
+    else:
+        return {'predict ': [-1, -1]}
