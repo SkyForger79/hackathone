@@ -81,19 +81,21 @@ void loop()
   L = Light();
   Mi = Screem();
 
-*/    //в случае встряски посылаем сообщение серверу
     // посылаем HTTP-запрос:
-    Json= "%7B%22Light%22:%Light%20%22:%"+ String(Svet) +", %20%22microphoneValue:%22%" + String(microphoneValue) + ",%20%22Sonar:%22%" + String(distance) + ",%20%22Humidity:%22%" + String(H) + ",%20%22temperature:%22%" + String(T) + "%7D";
+    Json= "{Light: "+ String(Svet) +", microphoneValue: " + String(microphoneValue) + ",Sonar: " + String(distance) + ",Humidity: " + String(H) + ", temperature: " + String(T) + "}";
     Serial.println(Json);
-    http.begin("http://192.168.0.102:9999/v1/set_stat?Light=" + String(Svet) + "&microphoneValue=" + String(microphoneValue) + "&Sonar=" + String(distance) + "&Humidity=" + String(H) + "&temperature=" + String(T)); //передача сообщения на сервер
-    Serial.println("--------------------------------------------------------------------------");
-    Serial.println("http://192.168.0.102:9999/v1/set_stat/" + Json);
-    Serial.println("--------------------------------------------------------------------------");
-    int httpcode = http.GET();
-    Serial.print("Error code: ");
-    Serial.println(httpcode);
-    http.end();
-    
-    delay(500);
+    if(S<=10 || T>=26 || H>=20 || L>=1700)
+    {
+      http.begin("http://192.168.0.102:9999/v1/set_stat?Light=" + String(Svet) + "&microphoneValue=" + String(microphoneValue) + "&Sonar=" + String(distance) + "&Humidity=" + String(H) + "&temperature=" + String(T)); //передача сообщения на сервер
+      int httpcode = http.GET();
+      Serial.print("Error code: ");
+      Serial.println(httpcode);
+      http.end();
+    }
+      Serial.println("--------------------------------------------------------------------------");
+      Serial.println("http://192.168.0.102:9999/v1/set_stat/" + Json);
+      Serial.println("--------------------------------------------------------------------------");
+
+    delay(100);
 
 }
