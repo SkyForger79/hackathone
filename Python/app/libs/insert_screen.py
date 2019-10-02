@@ -1,4 +1,4 @@
-from app.libs.sql_lib.connect_to_mssql import get_connect_ms_sql
+from Python.app.libs.sql_lib.connect_to_mssql import get_connect_ms_sql
 import json
 from datetime import datetime
 
@@ -23,11 +23,11 @@ def get_fatigue_signal():
             from hackaton.dbo.screen_history
             where 1 = 1
                 and stime >= dateadd(MINUTE, -1,  GETDATE())   
-                and max_eye > 0.5    
+                and max_eye < 0.5 and max_eye != -1   
         """
         cursor.execute(sql)
-        result = cursor.fetchone()
-        if result >= 15:
+        result = cursor.fetchone()[0]
+        if result >= 50:
             cursor.execute(
                 """
                     

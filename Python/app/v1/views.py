@@ -1,12 +1,12 @@
 from marshmallow import ValidationError
 from flask import Blueprint, request, jsonify, send_from_directory, Response
 
-from app.libs.file_lib.upload_file import allowed_file, save_data
-from app.libs.ml_lib.fatigue_checker import check_fatigue
-from app.libs.sql_lib.insert_signal import insert_to_alert_history
-from app.libs.sql_lib.get_signals import get_last_signals
+from Python.app.libs.file_lib.upload_file import allowed_file, save_data
+from Python.app.libs.ml_lib.fatigue_checker import check_fatigue
+from Python.app.libs.sql_lib.insert_signal import insert_to_alert_history, insert_alert_to_database
+from Python.app.libs.sql_lib.d_get_signals import get_last_signals, get_all_signals
 
-import config as config
+
 import json
 import Python.config as config
 import json
@@ -28,7 +28,7 @@ def ml():
         file = request.files['file']
         if file and allowed_file(file.filename):
             result = check_fatigue(file)
-            upload = check_eyes(file)
+            # upload = check_eyes(file)
             # answer = list()
             # answer.append(upload)
             # answer.append(result)
@@ -48,23 +48,32 @@ def ml():
 # region arduino
 @blueprints_v1.route('/set_stat', methods=['GET'])
 def set_stat():
-    return jsonify(
-        insert_to_alert_history(
-            light=request.args.get('Light'),
-            micro=request.args.get('microphoneValue'),
-            sonar=request.args.get('Sonar'),
-            humidity=request.args.get('Humidity'),
-            temperature=request.args.get('temperature')
-        )
-    )
+    light = request.args.get('Light'),
+    micro = request.args.get('microphoneValue'),
+    sonar = request.args.get('Sonar'),
+    humidity = request.args.get('Humidity'),
+    temperature = request.args.get('temperature')
+
+
+    if int(light[0]) > config.max_light:
+        insert_to_alert_history(light=request.args.get('Light'))
+    if int(micro[0]) > config.max_micro:
+        insert_to_alert_history(micro=request.args.get('microphoneValue'))
+    if int(sonar[0]) < config.min_sonar:
+        insert_to_alert_history(sonar=request.args.get('Sonar'))
+    if float(humidity[0]) > config.max_humidity:
+        insert_to_alert_history(humidity=request.args.get('Humidity'))
+    if float(temperature[0]) > config.max_temperature:
+        insert_to_alert_history(temperature=request.args.get('temperature'))
+
+    return jsonify({"status": "OK"})
+
+
 
 # @blueprints_v1.route('/set_stat_test', methods=['GET', 'POST'])
 # def set_stat():
 #     requests.post(url=API_ENDPOINT, data=data)
-@blueprints_v1.route('/set_stat', methods=['GET', 'POST'])
-def set_stat():
-    if request.method == 'POST':
-        return jsonify(insert_signal(request.json, request.date))
+
 # endregion
 
 
@@ -107,7 +116,17 @@ def get_current_signal():
 @blueprints_v1.route('/get_all_signal')
 def get_today_signal():
     res = get_all_signals()
-    return jsonify(res)
+    req = list()
+    for i in res:
+        print(i)
+        req.append(i)
+    req = json.dumps(req)
+    resp = Response(req)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    resp.mimetype='application/json'
+    resp.content_encoding='UTF-8'
+    return resp
+    #return jsonify(res)
 
 #
 # @blueprints_v1.route('/get_all_signal')
@@ -133,17 +152,33 @@ def validation_json(error: ValidationError):
 
 
 # region get set screen
+dev_message = {
+    'light': {'head': 'Темновато..', 'body': 'Работа за ПК в темноте портит вам зрение, включите свет', 'level': 'alert'},
+    'micro': {'head': 'Шумно', 'body': 'Шум на вашем рабочем месте превышает допустимые нормы - бегите!', 'level': 'warning'},
+    'sonar': {'head': 'Отодвиньтесь', 'body': 'Ваши глаза будут Вам благодарны, если вы отодвинетесь от экрана', 'level': 'alert'},
+    'temperature': {'head': 'Очень влажно', 'body': 'Пора выключить увлажнитель воздуха!', 'level': 'warning'},
+    'humidity': {'head': 'Очень жарко', 'body': 'Срочно нужно включить кондиционер или открыть окно', 'level': 'warning'},
+    'fatigue': {'head': 'Вы устали!', 'body': 'Рекомендуется устроить небольшой перерыв', 'level': 'warning'}
+}
+
+# region get set screen
 @blueprints_v1.route('/get_msg', methods=['GET'])
 def get_msg():
     data = get_last_signals()
     print(data)
     req = list()
-    for i in data:
+    for k, v in data.items():
         list_of_files = glob.glob(config.UPLOAD_FOLDER+'/*')
         img = max(list_of_files, key=os.path.getctime)
         img = img.split('/')[-1]
-        req.append({"head": "Вы устали!", "body": "Рекомендуется устроить небольшой перерыв", "img": img, "id": 1, "level": "danger"})
-        insert_alert_to_database('Вы устали', 'Рекомендуется устроить небольшой перерыв', img)
+        req.append(
+            {
+                **dev_message[k],
+                "img": img,
+                **v
+            }
+        )
+        insert_alert_to_database(dev_message[k]['head'], dev_message[k]['body'], img)
     req = json.dumps(req)
     resp = Response(req)
     resp.headers['Access-Control-Allow-Origin'] = '*'

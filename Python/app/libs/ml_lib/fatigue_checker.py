@@ -1,5 +1,5 @@
 from marshmallow import ValidationError
-from app.libs.ml_lib.model import ModelLoader
+from Python.app.libs.ml_lib.model import ModelLoader
 from keras.preprocessing.image import img_to_array, load_img
 import numpy as np
 from PIL import Image  
@@ -9,13 +9,12 @@ from keras.models import load_model
 from keras import backend as cl
 import cv2
 from PIL import Image
-import config
+import Python.config as config
 from time import sleep
 from keras import backend as K
 
-
-face_cascade = cv2.CascadeClassifier('/home/pavel/PycharmProjects/hackathone/Python/app/libs/data/opencv_face2.xml')
-eye_cascade = cv2.CascadeClassifier('/home/pavel/PycharmProjects/hackathone/Python/app/libs/data/opencv_face.xml')
+face_cascade = cv2.CascadeClassifier('/home/anton/VSCodeProjects/hackathone/Python/app/libs/data/opencv_face2.xml')
+eye_cascade = cv2.CascadeClassifier('/home/anton/VSCodeProjects/hackathone/Python/app/libs/data/opencv_face.xml')
 
 
 def image_preprocessing(image):

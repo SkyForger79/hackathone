@@ -1,4 +1,4 @@
-from app.libs.sql_lib.connect_to_mssql import get_connect_ms_sql
+from Python.app.libs.sql_lib.connect_to_mssql import get_connect_ms_sql
 import json
 from datetime import datetime
 

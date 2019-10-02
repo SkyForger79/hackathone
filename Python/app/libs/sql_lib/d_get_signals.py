@@ -17,25 +17,20 @@ def update_sig():
 def get_last_signals():
     connect = get_connect_ms_sql()
     cursor = connect.cursor()
-    sql_select_query = """select top 1 * from  hackaton.dbo.alert_history where is_sent = 0"""
-    cursor.execute(sql_select_query)
-    record = cursor.fetchall()
-    answer_list = list()
-
-    for row in record:
-        answer_dict = dict()
-        answer_dict["timestamp"] = row[1]
-        answer_dict["device"] = row[2]
-        answer_dict["val"] = row[3]
-        answer_list.append(answer_dict)
+    answer_dict = dict()
+    for i in ('light', 'micro', 'sonar', 'humidity', 'temperature', 'fatigue'):
+        sql = """select top 1 * from  hackaton.dbo.alert_history where is_sent = 0 and dev_name='{}'""".format(i)
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            answer_dict[i] = {"timestamp": str(row[1]), "val": row[3]}
     update_sig()
-    return answer_list
+    return answer_dict
 
 
 def get_all_signals():
     connect = get_connect_ms_sql()
     cursor = connect.cursor()
-    sql_select_query = """select * from  hackaton.dbo.alert_base where alert_time >= cast(GETDATE() as date)"""
+    sql_select_query = """select * from  hackaton.dbo.alert_base where alert_time >= cast(GETDATE() as date) order by id desc"""
     cursor.execute(sql_select_query)
     record = cursor.fetchall()
     answer_list = list()
@@ -47,6 +42,6 @@ def get_all_signals():
         answer_dict["body"] = row[2]
         answer_dict["img"] = row[3]
         answer_dict["level"] = row[4]
-        answer_dict["datetime"] = row[5]
+        answer_dict["datetime"] = str(row[5])
         answer_list.append(answer_dict)
     return answer_list

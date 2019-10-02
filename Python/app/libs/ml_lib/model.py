@@ -7,5 +7,5 @@ class ModelLoader:
 
     @staticmethod
     def predict(data: array) -> float:
-        model = load_model('/home/pavel/PycharmProjects/hackathone/Python/app/libs/data/model7.h5')
+        model = load_model('/home/anton/VSCodeProjects/hackathone/Python/app/libs/data/model7.h5')
         return model.predict(data)
